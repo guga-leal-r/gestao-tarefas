@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Organizador</title>
+    <title>Organizador Pro 5352</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: sans-serif; margin: 0; padding: 15px; background: #f4f7f6; padding-bottom: 110px; }
@@ -16,9 +16,9 @@
         .form-row { display: flex; gap: 10px; }
         input { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; outline: none; }
         .btn-add { background: #42b72a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #1877f2; }
+        .card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #1877f2; }
         .concluida { text-decoration: line-through; color: #bbb !important; }
-        .detalhes { font-size: 13px; color: #666; margin-top: 5px; line-height: 1.4; }
+        .bloco-desc { background: #f0f2f5; padding: 10px; border-radius: 8px; font-size: 14px; color: #444; margin-top: 8px; display: block; border-left: 3px solid #1877f2; }
         .btn-edit { font-size: 18px; text-decoration: none; cursor: pointer; margin-right: 8px; }
         .btn-del { font-size: 18px; text-decoration: none; color: #ff4d4d; }
         .total-bar { position: fixed; bottom: 0; left: 0; right: 0; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; z-index: 1000; }
@@ -36,21 +36,21 @@
             {% endfor %}
         </div>
 
-        <a href="/resetar_lista?nome={{ atual }}" style="display:block; text-align:center; margin-bottom:15px; color:#1877f2; text-decoration:none; font-size:13px; font-weight:bold;">🔄 Resetar Marcas</a>
+        <a href="/resetar_lista?nome={{ atual }}" style="display:block; text-align:center; margin-bottom:15px; color:#1877f2; text-decoration:none; font-size:13px; font-weight:bold;">🔄 Limpar Marcações</a>
 
         <form action="/add" method="POST" id="meuForm">
             <input type="hidden" name="id_edicao" id="id_edicao">
-            <input type="text" name="conteudo" id="txt_nome" placeholder="{{ 'O que comprar?' if atual == 'Mercado' else 'Título do item' }}" required>
+            <input type="text" name="conteudo" id="txt_nome" placeholder="{{ 'O que comprar?' if atual == 'Mercado' else 'Título' }}" required>
             
             <!-- CAMPOS SÓ APARECEM SE FOR MERCADO -->
-            <div class="form-row" id="linha_mercado" style="{{ 'display:flex;' if atual == 'Mercado' else 'display:none;' }}">
+            {% if atual == 'Mercado' %}
+            <div class="form-row" id="linha_mercado">
                 <input type="text" name="quantidade" id="txt_qtd" placeholder="Qtd" style="flex:1">
-                <input type="text" name="preco" id="txt_preco" placeholder="R$ Preço" style="flex:2">
+                <input type="text" name="preco" id="txt_preco_merc" placeholder="R$ Preço" style="flex:2">
             </div>
-
-            <!-- CAMPO SÓ APARECE SE NÃO FOR MERCADO -->
-            {% if atual != 'Mercado' %}
-            <input type="text" name="preco" id="txt_desc" placeholder="Descrição ou Detalhes">
+            {% else %}
+            <!-- CAMPO DE DESCRIÇÃO SEMPRE VISÍVEL FORA DO MERCADO -->
+            <input type="text" name="preco" id="txt_desc" placeholder="Descrição, Senha ou Detalhes...">
             {% endif %}
 
             <input type="text" name="lista_nome" id="txt_lista" value="{{ atual }}" style="background: #f0f2f5; font-size: 12px; color:#888;">
@@ -62,12 +62,14 @@
             {% for tarefa in lista %}
                 <li class="card" style="{{ 'border-left-color: #ddd;' if tarefa.feito }}">
                     <div style="flex: 1;">
-                        <div class="{{ 'concluida' if tarefa.feito }}" style="font-weight: bold;">{{ tarefa.texto }}</div>
-                        <div class="detalhes">
+                        <div class="{{ 'concluida' if tarefa.feito }}" style="font-weight: bold; font-size: 17px;">{{ tarefa.texto }}</div>
+                        <div class="info-item">
                             {% if atual == 'Mercado' %}
-                                💰 {{ tarefa.qtd }} • R$ {{ tarefa.preco }}
+                                <span style="font-size: 13px; color:#666;">💰 {{ tarefa.qtd }} • R$ {{ tarefa.preco }}</span>
                             {% else %}
-                                {{ '📝 ' + tarefa.preco if tarefa.preco else '' }}
+                                {% if tarefa.preco %}
+                                    <span class="bloco-desc">📝 {{ tarefa.preco }}</span>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -81,13 +83,13 @@
         </ul>
     </div>
 
-    <!-- TOTAL SÓ APARECE NA LISTA MERCADO -->
+    <!-- TOTAL SÓ NO MERCADO -->
     {% if atual == 'Mercado' and total > 0 %}
     <div class="total-bar {{ 'bg-verde' if total <= limite else 'bg-vermelho' }}">
         <span>Total: R$ {{ "%.2f"|format(total) }}</span>
-        <form action="/config_limite" method="POST" style="background:none; padding:0; box-shadow:none; margin:0; flex-direction:row; gap:5px;">
+        <form action="/config_limite" method="POST" style="background:none; padding:0; box-shadow:none; margin:0; display:flex; gap:5px;">
             <input type="text" name="novo_limite" value="{{ '%.2f'|format(limite) }}" style="width:55px; padding:2px; font-size:11px; border:none; border-radius:3px;">
-            <button type="submit" style="font-size:9px; cursor:pointer;">LIMITE</button>
+            <button type="submit" style="font-size:9px; cursor:pointer;">OK</button>
         </form>
     </div>
     {% endif %}
@@ -96,12 +98,13 @@
         function prepararEdicao(id, texto, qtd, preco) {
             document.getElementById('id_edicao').value = id;
             document.getElementById('txt_nome').value = texto;
-            // Se estiver editando, mostra os campos independente da lista para não dar erro
-            document.getElementById('linha_mercado').style.display = "flex";
-            document.getElementById('txt_qtd').value = qtd;
-            if(document.getElementById('txt_preco')) document.getElementById('txt_preco').value = preco;
+            
+            // Preenche os campos se eles existirem na tela
+            if(document.getElementById('txt_qtd')) document.getElementById('txt_qtd').value = qtd;
+            if(document.getElementById('txt_preco_merc')) document.getElementById('txt_preco_merc').value = preco;
             if(document.getElementById('txt_desc')) document.getElementById('txt_desc').value = preco;
-            document.getElementById('btn_submit').innerText = "Salvar Alteração";
+            
+            document.getElementById('btn_submit').innerText = "Atualizar";
             document.getElementById('btn_submit').style.background = "#1877f2";
             document.getElementById('btn_cancela').style.display = "block";
             window.scrollTo({top: 0, behavior: 'smooth'});

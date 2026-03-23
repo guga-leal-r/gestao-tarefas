@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, redirect, request, session
 
 app = Flask(__name__)
-app.secret_key = 'chave_universal_5352_final'
+app.secret_key = 'chave_mestra_universal_5352_final'
 
 ARQUIVO_DADOS = 'tarefas.json'
 LISTA_PADRAO = 'Mercado'
@@ -34,13 +34,14 @@ def index():
     lista_atual = request.args.get('nome', LISTA_PADRAO)
     tarefas_filtradas = [t for t in tarefas if t.get('lista_nome', LISTA_PADRAO) == lista_atual]
     
-    # SOMA APENAS SE FOR A LISTA MERCADO
+    # Cálculo do total apenas para a lista Mercado
     total_valor = 0
     if lista_atual == LISTA_PADRAO:
         for t in tarefas_filtradas:
             try:
                 preco = float(str(t.get('preco', 0)).replace(',', '.'))
                 qtd_raw = str(t.get('qtd', '1'))
+                # Extrai apenas números da quantidade (ex: "2kg" -> 2)
                 qtd_num = int(''.join(filter(str.isdigit, qtd_raw))) if any(c.isdigit() for c in qtd_raw) else 1
                 total_valor += (preco * qtd_num)
             except: continue
@@ -61,19 +62,17 @@ def adicionar():
     nome_lista = request.form.get('lista_nome', LISTA_PADRAO).strip()
     id_edicao = request.form.get('id_edicao')
     qtd = request.form.get('quantidade', '')
-    
-    # Pega o valor do campo de preço ou da descrição (dependendo da lista)
     preco_ou_desc = request.form.get('preco', '').strip()
 
     if titulo:
-        if id_edicao: # EDIÇÃO
+        if id_edicao:
             for t in tarefas:
                 if str(t['id']) == id_edicao:
                     t['texto'] = titulo
                     t['qtd'] = qtd
                     t['preco'] = preco_ou_desc
                     t['lista_nome'] = nome_lista if nome_lista else LISTA_PADRAO
-        else: # NOVO ITEM
+        else:
             novo_id = tarefas[-1]['id'] + 1 if tarefas else 1
             tarefas.append({
                 'id': novo_id, 'texto': titulo, 'feito': False, 
