@@ -2,48 +2,69 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <!-- Faz o site carregar no tamanho certo do celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Gerenciador</title>
     <style>
-        body { font-family: sans-serif; margin: 40px; background-color: #f4f4f4; }
-        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 2px 2px 5px #ddd; list-style: none; display: flex; justify-content: space-between; }
-        .concluida { color: green; text-decoration: line-through; }
-        .btn-add { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #eef2f3; color: #333; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { text-align: center; color: #2c3e50; }
+
+        /* Estilo do Formulário */
+        form { display: flex; gap: 10px; margin-bottom: 25px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; }
+        .btn-add { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Lista de Tarefas */
+        ul { padding: 0; list-style: none; }
+        .card { 
+            background: white; padding: 15px; margin-bottom: 12px; border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 15px; 
+        }
+
+        /* Ajuste para telas maiores (computador) */
+        @media (min-width: 480px) {
+            .card { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+
+        .texto-tarefa { font-size: 18px; flex: 1; }
+        .concluida { color: #aaa; text-decoration: line-through; }
+
+        /* Botões de Ação */
+        .acoes { display: flex; gap: 10px; }
+        .btn { text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; }
+        .btn-done { background: #3498db; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .check-icon { font-size: 20px; color: #27ae60; padding-right: 10px; }
     </style>
 </head>
 <body>
-    <h1>✅ Minhas Tarefas</h1>
+    <div class="container">
+        <h1>✅ Minhas Tarefas</h1>
 
-    <!-- FORMULÁRIO PARA ADICIONAR -->
-    <form action="/add" method="POST" style="margin-bottom: 20px;">
-        <input type="text" name="conteudo" placeholder="Digite uma nova tarefa..." required style="padding: 10px; width: 250px;">
-        <button type="submit" class="btn-add">Adicionar</button>
-    </form>
+        <form action="/add" method="POST">
+            <input type="text" name="conteudo" placeholder="Nova tarefa..." required>
+            <button type="submit" class="btn-add">Add</button>
+        </form>
 
-    <ul>
-        {% for tarefa in lista %}
-            <li class="card">
-                <!-- Texto da tarefa -->
-                <span class="{{ 'concluida' if tarefa.feito }}">
-                    #{{ tarefa.id }} - {{ tarefa.texto }}
-                </span>
-                
-                <!-- Botões de ação -->
-                <div>
-                    {% if not tarefa.feito %}
-                        <a href="/concluir/{{ tarefa.id }}" style="color: #007bff; text-decoration: none; font-weight: bold;">[ Concluir ]</a>
-                    {% else %}
-                        <span style="color: green;">✅</span>
-                    {% endif %}
-
-                    <!-- BOTÃO DE APAGAR (EM VERMELHO) -->
-                    <a href="/deletar/{{ tarefa.id }}" 
-                       style="color: #dc3545; text-decoration: none; margin-left: 15px; font-weight: bold;" 
-                       onclick="return confirm('Tem certeza que deseja excluir esta tarefa?')">
-                       [ 🗑️ Apagar ]
-                    </a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+        <ul>
+            {% for tarefa in lista %}
+                <li class="card">
+                    <span class="texto-tarefa {{ 'concluida' if tarefa.feito }}">
+                        {{ '✔ ' if tarefa.feito }} {{ tarefa.texto }}
+                    </span>
+                    
+                    <div class="acoes">
+                        {% if not tarefa.feito %}
+                            <a href="/concluir/{{ tarefa.id }}" class="btn btn-done">Concluir</a>
+                        {% endif %}
+                        
+                        <a href="/deletar/{{ tarefa.id }}" class="btn btn-delete" 
+                           onclick="return confirm('Apagar esta tarefa?')">Excluir</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
