@@ -22,15 +22,26 @@
     <ul>
         {% for tarefa in lista %}
             <li class="card">
+                <!-- Texto da tarefa -->
                 <span class="{{ 'concluida' if tarefa.feito }}">
                     #{{ tarefa.id }} - {{ tarefa.texto }}
                 </span>
                 
-                {% if not tarefa.feito %}
-                    <a href="/concluir/{{ tarefa.id }}" style="color: blue; text-decoration: none; font-weight: bold;">[ Marcar como Feita ]</a>
-                {% else %}
-                    <span>✅</span>
-                {% endif %}
+                <!-- Botões de ação -->
+                <div>
+                    {% if not tarefa.feito %}
+                        <a href="/concluir/{{ tarefa.id }}" style="color: #007bff; text-decoration: none; font-weight: bold;">[ Concluir ]</a>
+                    {% else %}
+                        <span style="color: green;">✅</span>
+                    {% endif %}
+
+                    <!-- BOTÃO DE APAGAR (EM VERMELHO) -->
+                    <a href="/deletar/{{ tarefa.id }}" 
+                       style="color: #dc3545; text-decoration: none; margin-left: 15px; font-weight: bold;" 
+                       onclick="return confirm('Tem certeza que deseja excluir esta tarefa?')">
+                       [ 🗑️ Apagar ]
+                    </a>
+                </div>
             </li>
         {% endfor %}
     </ul>

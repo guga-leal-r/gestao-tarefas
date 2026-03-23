@@ -46,5 +46,13 @@ def concluir(id_tarefa):
     salvar_tarefas(tarefas) # <-- SALVA NO ARQUIVO
     return redirect('/')
 
+@app.route('/deletar/<int:id_tarefa>')
+def deletar(id_tarefa):
+    global tarefas
+    # Cria uma nova lista sem a tarefa que tem o ID clicado
+    tarefas = [t for t in tarefas if t['id'] != id_tarefa]
+    salvar_tarefas(tarefas) # Salva a lista atualizada no arquivo JSON
+    return redirect('/')
+
 if __name__ == '__main__':
     app.run(debug=True)
