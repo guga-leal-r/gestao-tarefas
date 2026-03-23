@@ -2,70 +2,56 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Meu Gerenciador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Lista</title>
     <style>
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
-        .container { max-width: 600px; margin: auto; }
-        h1 { text-align: center; color: #1877f2; font-size: 28px; margin-bottom: 25px; }
-
-        /* Formulário Robusto para Celular */
-        form { display: flex; gap: 12px; margin-bottom: 30px; }
-        input { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; outline: none; transition: 0.3s; }
-        input:focus { border-color: #1877f2; }
-        .btn-add { background: #42b72a; color: white; border: none; padding: 15px 25px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 18px; }
-
-        /* Lista de Tarefas Gigante */
-        ul { padding: 0; list-style: none; }
-        .card { 
-            background: white; padding: 20px; margin-bottom: 15px; border-radius: 15px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 20px; 
-        }
-
-        /* No computador, fica lado a lado. No celular, um embaixo do outro */
-        @media (min-width: 500px) {
-            .card { flex-direction: row; justify-content: space-between; align-items: center; }
-        }
-
-        .texto-tarefa { font-size: 20px; font-weight: 500; flex: 1; word-wrap: break-word; }
-        .concluida { color: #999; text-decoration: line-through; }
-
-        /* Botões de Ação estilo App */
-        .acoes { display: flex; gap: 12px; width: 100%; justify-content: flex-end; }
-        .btn { 
-            text-decoration: none; padding: 12px 18px; border-radius: 10px; 
-            font-size: 16px; font-weight: bold; text-align: center; flex: 1; max-width: 120px;
-        }
-        .btn-done { background: #e7f3ff; color: #1877f2; border: 1px solid #1877f2; }
-        .btn-delete { background: #fa3e3e; color: white; }
+        * { box-sizing: border-box; }
+        body { font-family: sans-serif; margin: 0; padding: 15px; background: #f0f2f5; }
+        .container { max-width: 500px; margin: auto; }
         
-        .status-check { color: #42b72a; font-weight: bold; font-size: 22px; }
+        /* Menu de Listas (Abas) */
+        .abas { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
+        .aba { padding: 8px 15px; background: #ddd; border-radius: 20px; text-decoration: none; color: #555; white-space: nowrap; font-size: 14px; }
+        .aba.ativa { background: #1877f2; color: white; font-weight: bold; }
+
+        /* Estilo do App */
+        h1 { text-align: center; color: #1877f2; font-size: 24px; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; }
+        input, select, .btn-add { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; }
+        .btn-add { background: #42b72a; color: white; border: none; font-weight: bold; }
+
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .concluida { text-decoration: line-through; color: #aaa; }
+        .btn-del { color: red; text-decoration: none; margin-left: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✅ Gestão de Tarefas</h1>
+        <h1>📝 Minha Lista</h1>
 
+        <!-- Menu de Navegação entre Listas -->
+        <div class="abas">
+            {% for nome in nomes_listas %}
+                <a href="/?nome={{ nome }}" class="aba {{ 'ativa' if nome == atual }}">{{ nome }}</a>
+            {% endfor %}
+        </div>
+
+        <!-- Formulário para Criar/Adicionar -->
         <form action="/add" method="POST">
-            <input type="text" name="conteudo" placeholder="O que precisa fazer?" required>
-            <button type="submit" class="btn-add">+</button>
+            <input type="text" name="conteudo" placeholder="Nova tarefa..." required>
+            <input type="text" name="lista_nome" placeholder="Nome da Lista (ex: Mercado)" value="{{ atual }}">
+            <button type="submit" class="btn-add">Salvar na Lista</button>
         </form>
 
         <ul>
             {% for tarefa in lista %}
                 <li class="card">
-                    <span class="texto-tarefa {{ 'concluida' if tarefa.feito }}">
-                        {% if tarefa.feito %}<span class="status-check">✔</span>{% endif %}
-                        {{ tarefa.texto }}
-                    </span>
-                    
-                    <div class="acoes">
+                    <span class="{{ 'concluida' if tarefa.feito }}">{{ tarefa.texto }}</span>
+                    <div>
                         {% if not tarefa.feito %}
-                            <a href="/concluir/{{ tarefa.id }}" class="btn btn-done">Feito</a>
+                            <a href="/concluir/{{ tarefa.id }}" style="text-decoration:none;">✔️</a>
                         {% endif %}
-                        
-                        <a href="/deletar/{{ tarefa.id }}" class="btn btn-delete" 
-                           onclick="return confirm('Apagar tarefa?')">Excluir</a>
+                        <a href="/deletar/{{ tarefa.id }}" class="btn-del" onclick="return confirm('Apagar?')">🗑️</a>
                     </div>
                 </li>
             {% endfor %}
