@@ -11,19 +11,15 @@
         .abas { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding: 5px 0; }
         .aba { padding: 10px 20px; background: #d1d5db; border-radius: 25px; text-decoration: none; color: #4b5563; white-space: nowrap; font-size: 14px; }
         .aba.ativa { background: #1877f2; color: white; font-weight: bold; }
-        h1 { text-align: center; color: #1877f2; margin-bottom: 5px; }
-        .config-limite { text-align: center; margin-bottom: 15px; font-size: 13px; color: #666; }
-        .config-limite input { width: 65px; padding: 5px; border-radius: 5px; border: 1px solid #ddd; text-align: center; }
+        h1 { text-align: center; color: #1877f2; }
         form { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .form-row { display: flex; gap: 10px; }
         input { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; outline: none; }
         .btn-add { background: #42b72a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #1877f2; }
         .concluida { text-decoration: line-through; color: #bbb !important; }
-        .detalhes { font-size: 12px; color: #888; margin-top: 3px; }
-        .acoes { display: flex; align-items: center; gap: 12px; }
-        .btn-check { font-size: 24px; text-decoration: none; }
-        .btn-edit { font-size: 18px; text-decoration: none; cursor: pointer; }
+        .detalhes { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4; }
+        .btn-edit { font-size: 18px; text-decoration: none; cursor: pointer; margin-right: 8px; }
         .btn-del { font-size: 18px; text-decoration: none; color: #ff4d4d; }
         .total-bar { position: fixed; bottom: 0; left: 0; right: 0; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; z-index: 1000; }
         .bg-verde { background-color: #42b72a; }
@@ -34,43 +30,42 @@
     <div class="container">
         <h1>🛒 {{ atual }}</h1>
         
-        <div class="config-limite">
-            <form action="/config_limite" method="POST" style="display:inline; background:none; padding:0; box-shadow:none; flex-direction: row; gap:5px; align-items: center; justify-content: center;">
-                Limite: R$ <input type="text" name="novo_limite" value="{{ '%.2f'|format(limite) }}">
-                <button type="submit" style="font-size: 10px; cursor:pointer;">Definir</button>
-            </form>
-        </div>
-
         <div class="abas">
             {% for nome in nomes_listas %}
                 <a href="/?nome={{ nome }}" class="aba {{ 'ativa' if nome == atual }}">{{ nome }}</a>
             {% endfor %}
         </div>
 
-        <a href="/resetar_lista?nome={{ atual }}" style="display:block; text-align:center; margin-bottom:15px; color:#1877f2; text-decoration:none; font-size:14px; font-weight:bold;">🔄 Resetar Marcas</a>
+        <a href="/resetar_lista?nome={{ atual }}" style="display:block; text-align:center; margin-bottom:15px; color:#1877f2; text-decoration:none; font-size:13px; font-weight:bold;">🔄 Resetar Marcas</a>
 
-        <form action="/add" method="POST" id="form-tarefa">
+        <form action="/add" method="POST" id="meuForm">
             <input type="hidden" name="id_edicao" id="id_edicao">
-            <input type="text" name="conteudo" id="input_texto" placeholder="O que adicionar?" required>
+            <input type="text" name="conteudo" id="txt_nome" placeholder="O que adicionar?" required>
             <div class="form-row">
-                <input type="number" name="quantidade" id="input_qtd" value="1" min="1" style="flex:1">
-                <input type="text" name="preco" id="input_preco" placeholder="R$ Preço" style="flex:2">
+                <input type="number" name="quantidade" id="txt_qtd" value="1" min="1" style="flex:1" placeholder="Qtd">
+                <input type="text" name="preco" id="txt_preco" placeholder="R$ Preço ou Anotação" style="flex:2">
             </div>
-            <input type="text" name="lista_nome" id="input_lista" value="{{ atual }}" style="background:#f9f9f9; font-size:14px;">
-            <button type="submit" class="btn-add" id="btn-submit">Adicionar Item</button>
-            <button type="button" onclick="window.location.reload()" id="btn-cancelar" style="display:none; font-size:12px; color:red; border:none; background:none; cursor:pointer;">Cancelar Edição</button>
+            <input type="text" name="lista_nome" id="txt_lista" value="{{ atual }}" style="background: #f0f2f5; font-size: 13px;">
+            <button type="submit" class="btn-add" id="btn_submit">Adicionar Item</button>
+            <button type="button" onclick="window.location.reload()" id="btn_cancela" style="display:none; color:red; border:none; background:none; cursor:pointer; font-size:11px;">Cancelar Edição</button>
         </form>
 
         <ul style="padding: 0;">
             {% for tarefa in lista %}
                 <li class="card" style="{{ 'border-left-color: #ddd;' if tarefa.feito }}">
-                    <div>
+                    <div style="flex: 1; padding-right: 10px;">
                         <div class="{{ 'concluida' if tarefa.feito }}">{{ tarefa.texto }}</div>
-                        <div class="detalhes">{{ tarefa.qtd }}x • R$ {{ "%.2f"|format(tarefa.preco) }}</div>
+                        <div class="detalhes">
+                            {% if tarefa.preco is number and tarefa.preco > 0 %}
+                                💰 {{ tarefa.qtd }}x • R$ {{ "%.2f"|format(tarefa.preco) }}
+                            {% elif tarefa.preco is string and tarefa.preco != "0" and tarefa.preco != "" %}
+                                📝 {{ tarefa.preco }}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="acoes">
-                        <a href="/alternar/{{ tarefa.id }}" class="btn-check">{{ '✅' if tarefa.feito else '⬜' }}</a>
-                        <span class="btn-edit" onclick="editarItem('{{ tarefa.id }}', '{{ tarefa.texto }}', '{{ tarefa.qtd }}', '{{ tarefa.preco }}')">✏️</span>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <a href="/alternar/{{ tarefa.id }}" style="text-decoration:none; font-size:22px;">{{ '✅' if tarefa.feito else '⬜' }}</a>
+                        <span class="btn-edit" onclick="prepararEdicao('{{ tarefa.id }}', '{{ tarefa.texto }}', '{{ tarefa.qtd }}', '{{ tarefa.preco }}')">✏️</span>
                         <a href="/deletar/{{ tarefa.id }}" class="btn-del" onclick="return confirm('Excluir?')">🗑️</a>
                     </div>
                 </li>
@@ -81,20 +76,24 @@
     {% if total > 0 %}
     <div class="total-bar {{ 'bg-verde' if total <= limite else 'bg-vermelho' }}">
         <span>Total: R$ {{ "%.2f"|format(total) }}</span>
-        {% if total > limite %} <span style="font-size:11px; background:rgba(0,0,0,0.2); padding:4px; border-radius:4px;">⚠️ Limite!</span> {% endif %}
+        <form action="/config_limite" method="POST" style="background:none; padding:0; box-shadow:none; margin:0; flex-direction:row; gap:5px;">
+            <span style="font-size:11px; opacity:0.8;">Lim:</span>
+            <input type="text" name="novo_limite" value="{{ '%.2f'|format(limite) }}" style="width:50px; padding:2px; font-size:11px; border:none; border-radius:3px;">
+            <button type="submit" style="font-size:9px; cursor:pointer;">OK</button>
+        </form>
     </div>
     {% endif %}
 
     <script>
-        function editarItem(id, texto, qtd, preco) {
+        function prepararEdicao(id, texto, qtd, preco) {
             document.getElementById('id_edicao').value = id;
-            document.getElementById('input_texto').value = texto;
-            document.getElementById('input_qtd').value = qtd;
-            document.getElementById('input_preco').value = preco;
-            document.getElementById('btn-submit').innerText = "Salvar Alteração";
-            document.getElementById('btn-submit').style.background = "#1877f2";
-            document.getElementById('btn-cancelar').style.display = "block";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('txt_nome').value = texto;
+            document.getElementById('txt_qtd').value = qtd;
+            document.getElementById('txt_preco').value = preco;
+            document.getElementById('btn_submit').innerText = "Salvar Alteração";
+            document.getElementById('btn_submit').style.background = "#1877f2";
+            document.getElementById('btn_cancela').style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
     </script>
 </body>
