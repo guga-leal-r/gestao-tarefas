@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Gerenciador</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background-color: #f4f4f4; }
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 2px 2px 5px #ddd; list-style: none; display: flex; justify-content: space-between; }
+        .concluida { color: green; text-decoration: line-through; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>✅ Minhas Tarefas</h1>
+
+    <!-- FORMULÁRIO PARA ADICIONAR -->
+    <form action="/add" method="POST" style="margin-bottom: 20px;">
+        <input type="text" name="conteudo" placeholder="Digite uma nova tarefa..." required style="padding: 10px; width: 250px;">
+        <button type="submit" class="btn-add">Adicionar</button>
+    </form>
+
+    <ul>
+        {% for tarefa in lista %}
+            <li class="card">
+                <span class="{{ 'concluida' if tarefa.feito }}">
+                    #{{ tarefa.id }} - {{ tarefa.texto }}
+                </span>
+                
+                {% if not tarefa.feito %}
+                    <a href="/concluir/{{ tarefa.id }}" style="color: blue; text-decoration: none; font-weight: bold;">[ Marcar como Feita ]</a>
+                {% else %}
+                    <span>✅</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
