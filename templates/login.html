@@ -3,51 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bloqueio Biométrico</title>
+    <title>Acesso Privado</title>
     <style>
         body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 320px; }
-        .icon { font-size: 60px; margin-bottom: 15px; cursor: pointer; }
-        input { width: 100%; padding: 15px; font-size: 20px; text-align: center; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; }
-        .btn { width: 100%; padding: 15px; background: #1877f2; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-        .btn-bio { background: #42b72a; }
+        .box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 300px; }
+        input { width: 100%; padding: 15px; font-size: 28px; text-align: center; border: 2px solid #eee; border-radius: 12px; margin-bottom: 20px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: #1877f2; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="box">
-        <div class="icon" onclick="tentarBiometria()">👤</div>
-        <h3>App Bloqueado</h3>
-        <button class="btn btn-bio" onclick="tentarBiometria()">Usar Biometria</button>
-        <p style="font-size: 12px; color: #888;">ou use seu PIN abaixo</p>
+        <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
+        <h3>Digite seu PIN</h3>
         <form method="POST">
-            <input type="password" name="pin" placeholder="Digite o PIN" maxlength="4">
-            <button type="submit" class="btn">ACESSAR COM PIN</button>
+            <input type="password" name="pin" placeholder="****" maxlength="4" inputmode="numeric" autofocus required>
+            <button type="submit" class="btn">ACESSAR</button>
         </form>
     </div>
-
-    <script>
-        async function tentarBiometria() {
-            // Verifica se o navegador suporta biometria (disponível apenas em HTTPS ou Localhost)
-            if (window.PublicKeyCredential) {
-                // Simulação de chamada de autenticação local (Windows Hello / Android Biometric)
-                // Em um servidor real, aqui vai a verificação WebAuthn
-                const desafio = new Uint8Array(32);
-                window.crypto.getRandomValues(desafio);
-
-                try {
-                    // Esta linha faz o celular vibrar e pedir a digital
-                    alert("Por favor, use sua digital ou reconhecimento facial agora.");
-                    
-                    // Se o usuário "confirmar" o alerta, simulamos o sucesso
-                    fetch('/biometria_sucesso', { method: 'POST' })
-                    .then(() => window.location.href = '/');
-                } catch (e) {
-                    alert("Biometria não reconhecida ou cancelada.");
-                }
-            } else {
-                alert("Seu navegador não suporta biometria.");
-            }
-        }
-    </script>
 </body>
 </html>
