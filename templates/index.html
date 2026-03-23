@@ -5,144 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Lista Pro</title>
     <style>
-        * { 
-            box-sizing: border-box; 
-        }
-        body { 
-            font-family: sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background: #f4f7f6; 
-            padding-bottom: 110px; 
-        }
-        .container { 
-            max-width: 500px; 
-            margin: auto; 
-        }
-        .abas { 
-            display: flex; 
-            gap: 8px; 
-            overflow-x: auto; 
-            margin-bottom: 15px; 
-            padding: 5px 0; 
-        }
-        .aba { 
-            padding: 10px 20px; 
-            background: #e0e0e0; 
-            border-radius: 25px; 
-            text-decoration: none; 
-            color: #666; 
-            white-space: nowrap; 
-            font-size: 14px; 
-        }
-        .aba.ativa { 
-            background: #1877f2; 
-            color: white; 
-            font-weight: bold; 
-        }
-        h1 { 
-            text-align: center; 
-            color: #1877f2; 
-            margin-bottom: 5px; 
-        }
-        .config-limite { 
-            text-align: center; 
-            margin-bottom: 15px; 
-            font-size: 13px; 
-            color: #666; 
-        }
-        .config-limite input { 
-            width: 65px; 
-            padding: 5px; 
-            border-radius: 5px; 
-            border: 1px solid #ddd; 
-            text-align: center; 
-        }
-        form { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-        }
-        .form-row { 
-            display: flex; 
-            gap: 10px; 
-        }
-        input { 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid #ddd; 
-            font-size: 16px; 
-        }
-        .btn-add { 
-            background: #42b72a; 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
-        .card { 
-            background: white; 
-            padding: 15px; 
-            margin-bottom: 10px; 
-            border-radius: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            border-left: 5px solid #1877f2; 
-        }
-        .concluida { 
-            text-decoration: line-through; 
-            color: #bbb !important; 
-        }
-        .detalhes { 
-            font-size: 12px; 
-            color: #888; 
-        }
-        .acoes { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-        }
-        .btn-check { 
-            font-size: 24px; 
-            text-decoration: none; 
-        }
-        .btn-del { 
-            font-size: 18px; 
-            text-decoration: none; 
-            color: #ff4d4d; 
-        }
-        .btn-reset { 
-            display: block; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            color: #1877f2; 
-            text-decoration: none; 
-            font-size: 14px; 
-            font-weight: bold; 
-        }
-        .total-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            color: white; 
-            padding: 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            font-weight: bold; 
-            font-size: 18px; 
-            z-index: 1000; 
-        }
+        * { box-sizing: border-box; }
+        body { font-family: sans-serif; margin: 0; padding: 15px; background: #f4f7f6; padding-bottom: 110px; }
+        .container { max-width: 500px; margin: auto; }
+        
+        .abas { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding: 5px 0; }
+        .aba { padding: 10px 20px; background: #d1d5db; border-radius: 25px; text-decoration: none; color: #4b5563; white-space: nowrap; font-size: 14px; }
+        .aba.ativa { background: #1877f2; color: white; font-weight: bold; }
+
+        h1 { text-align: center; color: #1877f2; margin-bottom: 5px; }
+        
+        .config-limite { text-align: center; margin-bottom: 15px; font-size: 13px; color: #666; }
+        .config-limite input { width: 65px; padding: 5px; border-radius: 5px; border: 1px solid #ddd; text-align: center; }
+
+        form { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .form-row { display: flex; gap: 10px; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; outline: none; }
+        
+        .btn-add { background: #42b72a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-reset { display: block; text-align: center; margin-bottom: 15px; color: #1877f2; text-decoration: none; font-size: 14px; font-weight: bold; }
+
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #1877f2; }
+        .concluida { text-decoration: line-through; color: #bbb !important; }
+        .detalhes { font-size: 12px; color: #888; margin-top: 3px; }
+        
+        .acoes { display: flex; align-items: center; gap: 15px; }
+        .btn-check { font-size: 24px; text-decoration: none; }
+        .btn-del { font-size: 18px; text-decoration: none; color: #ff4d4d; }
+
+        /* Classes para a Barra de Total (Resolvendo o erro do Cursor) */
+        .total-bar { position: fixed; bottom: 0; left: 0; right: 0; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; z-index: 1000; }
+        .bg-verde { background-color: #42b72a; }
+        .bg-vermelho { background-color: #ff4d4d; }
+        .warning-badge { font-size: 11px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -179,7 +74,7 @@
                 <li class="card" style="{{ 'border-left-color: #ddd;' if tarefa.feito }}">
                     <div>
                         <div class="{{ 'concluida' if tarefa.feito }}">{{ tarefa.texto }}</div>
-                        <div class="detalhes">{{ tarefa.qtd }}x • R$ {{ '%.2f'|format(tarefa.preco) }}</div>
+                        <div class="detalhes">{{ tarefa.qtd }}x • R$ {{ "%.2f"|format(tarefa.preco) }}</div>
                     </div>
                     <div class="acoes">
                         <a href="/alternar/{{ tarefa.id }}" class="btn-check">{{ '✅' if tarefa.feito else '⬜' }}</a>
@@ -190,11 +85,12 @@
         </ul>
     </div>
 
+    <!-- Barra Totalizadora com Lógica de Classe (Sem erros no Cursor) -->
     {% if total > 0 %}
-    <div class="total-bar" style="background-color: {{ '#42b72a' if total <= limite else '#ff4d4d' }};">
-        <span>Total: R$ {{ '%.2f'|format(total) }}</span>
+    <div class="total-bar {{ 'bg-verde' if total <= limite else 'bg-vermelho' }}">
+        <span>Total: R$ {{ "%.2f"|format(total) }}</span>
         {% if total > limite %}
-            <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 4px;">⚠️ Limite!</span>
+            <span class="warning-badge">⚠️ Limite!</span>
         {% endif %}
     </div>
     {% endif %}
