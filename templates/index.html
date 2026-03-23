@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Lista Pro</title>
+    <title>Meu Organizador</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: sans-serif; margin: 0; padding: 15px; background: #f4f7f6; padding-bottom: 110px; }
@@ -11,14 +11,14 @@
         .abas { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding: 5px 0; }
         .aba { padding: 10px 20px; background: #d1d5db; border-radius: 25px; text-decoration: none; color: #4b5563; white-space: nowrap; font-size: 14px; }
         .aba.ativa { background: #1877f2; color: white; font-weight: bold; }
-        h1 { text-align: center; color: #1877f2; }
+        h1 { text-align: center; color: #1877f2; margin-bottom: 5px; }
         form { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .form-row { display: flex; gap: 10px; }
         input { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; outline: none; }
         .btn-add { background: #42b72a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #1877f2; }
         .concluida { text-decoration: line-through; color: #bbb !important; }
-        .detalhes { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4; }
+        .detalhes { font-size: 13px; color: #666; margin-top: 5px; line-height: 1.4; }
         .btn-edit { font-size: 18px; text-decoration: none; cursor: pointer; margin-right: 8px; }
         .btn-del { font-size: 18px; text-decoration: none; color: #ff4d4d; }
         .total-bar { position: fixed; bottom: 0; left: 0; right: 0; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; z-index: 1000; }
@@ -28,7 +28,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛒 {{ atual }}</h1>
+        <h1>{{ '🛒' if atual == 'Mercado' else '📑' }} {{ atual }}</h1>
         
         <div class="abas">
             {% for nome in nomes_listas %}
@@ -40,26 +40,34 @@
 
         <form action="/add" method="POST" id="meuForm">
             <input type="hidden" name="id_edicao" id="id_edicao">
-            <input type="text" name="conteudo" id="txt_nome" placeholder="O que adicionar?" required>
-            <div class="form-row">
-                <input type="number" name="quantidade" id="txt_qtd" value="1" min="1" style="flex:1" placeholder="Qtd">
-                <input type="text" name="preco" id="txt_preco" placeholder="R$ Preço ou Anotação" style="flex:2">
+            <input type="text" name="conteudo" id="txt_nome" placeholder="{{ 'O que comprar?' if atual == 'Mercado' else 'Título do item' }}" required>
+            
+            <!-- CAMPOS SÓ APARECEM SE FOR MERCADO -->
+            <div class="form-row" id="linha_mercado" style="{{ 'display:flex;' if atual == 'Mercado' else 'display:none;' }}">
+                <input type="text" name="quantidade" id="txt_qtd" placeholder="Qtd" style="flex:1">
+                <input type="text" name="preco" id="txt_preco" placeholder="R$ Preço" style="flex:2">
             </div>
-            <input type="text" name="lista_nome" id="txt_lista" value="{{ atual }}" style="background: #f0f2f5; font-size: 13px;">
-            <button type="submit" class="btn-add" id="btn_submit">Adicionar Item</button>
+
+            <!-- CAMPO SÓ APARECE SE NÃO FOR MERCADO -->
+            {% if atual != 'Mercado' %}
+            <input type="text" name="preco" id="txt_desc" placeholder="Descrição ou Detalhes">
+            {% endif %}
+
+            <input type="text" name="lista_nome" id="txt_lista" value="{{ atual }}" style="background: #f0f2f5; font-size: 12px; color:#888;">
+            <button type="submit" class="btn-add" id="btn_submit">Salvar Item</button>
             <button type="button" onclick="window.location.reload()" id="btn_cancela" style="display:none; color:red; border:none; background:none; cursor:pointer; font-size:11px;">Cancelar Edição</button>
         </form>
 
         <ul style="padding: 0;">
             {% for tarefa in lista %}
                 <li class="card" style="{{ 'border-left-color: #ddd;' if tarefa.feito }}">
-                    <div style="flex: 1; padding-right: 10px;">
-                        <div class="{{ 'concluida' if tarefa.feito }}">{{ tarefa.texto }}</div>
+                    <div style="flex: 1;">
+                        <div class="{{ 'concluida' if tarefa.feito }}" style="font-weight: bold;">{{ tarefa.texto }}</div>
                         <div class="detalhes">
-                            {% if tarefa.preco is number and tarefa.preco > 0 %}
-                                💰 {{ tarefa.qtd }}x • R$ {{ "%.2f"|format(tarefa.preco) }}
-                            {% elif tarefa.preco is string and tarefa.preco != "0" and tarefa.preco != "" %}
-                                📝 {{ tarefa.preco }}
+                            {% if atual == 'Mercado' %}
+                                💰 {{ tarefa.qtd }} • R$ {{ tarefa.preco }}
+                            {% else %}
+                                {{ '📝 ' + tarefa.preco if tarefa.preco else '' }}
                             {% endif %}
                         </div>
                     </div>
@@ -73,13 +81,13 @@
         </ul>
     </div>
 
-    {% if total > 0 %}
+    <!-- TOTAL SÓ APARECE NA LISTA MERCADO -->
+    {% if atual == 'Mercado' and total > 0 %}
     <div class="total-bar {{ 'bg-verde' if total <= limite else 'bg-vermelho' }}">
         <span>Total: R$ {{ "%.2f"|format(total) }}</span>
         <form action="/config_limite" method="POST" style="background:none; padding:0; box-shadow:none; margin:0; flex-direction:row; gap:5px;">
-            <span style="font-size:11px; opacity:0.8;">Lim:</span>
-            <input type="text" name="novo_limite" value="{{ '%.2f'|format(limite) }}" style="width:50px; padding:2px; font-size:11px; border:none; border-radius:3px;">
-            <button type="submit" style="font-size:9px; cursor:pointer;">OK</button>
+            <input type="text" name="novo_limite" value="{{ '%.2f'|format(limite) }}" style="width:55px; padding:2px; font-size:11px; border:none; border-radius:3px;">
+            <button type="submit" style="font-size:9px; cursor:pointer;">LIMITE</button>
         </form>
     </div>
     {% endif %}
@@ -88,8 +96,11 @@
         function prepararEdicao(id, texto, qtd, preco) {
             document.getElementById('id_edicao').value = id;
             document.getElementById('txt_nome').value = texto;
+            // Se estiver editando, mostra os campos independente da lista para não dar erro
+            document.getElementById('linha_mercado').style.display = "flex";
             document.getElementById('txt_qtd').value = qtd;
-            document.getElementById('txt_preco').value = preco;
+            if(document.getElementById('txt_preco')) document.getElementById('txt_preco').value = preco;
+            if(document.getElementById('txt_desc')) document.getElementById('txt_desc').value = preco;
             document.getElementById('btn_submit').innerText = "Salvar Alteração";
             document.getElementById('btn_submit').style.background = "#1877f2";
             document.getElementById('btn_cancela').style.display = "block";

@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, redirect, request, session
 
 app = Flask(__name__)
-app.secret_key = 'chave_mestra_final_5352_hibrida'
+app.secret_key = 'chave_universal_5352_final'
 
 ARQUIVO_DADOS = 'tarefas.json'
 LISTA_PADRAO = 'Mercado'
@@ -34,15 +34,18 @@ def index():
     lista_atual = request.args.get('nome', LISTA_PADRAO)
     tarefas_filtradas = [t for t in tarefas if t.get('lista_nome', LISTA_PADRAO) == lista_atual]
     
-    # Soma apenas itens que possuem valor numérico (Preço)
+    # SOMA APENAS SE FOR A LISTA MERCADO
     total_valor = 0
-    for t in tarefas_filtradas:
-        valor = t.get('preco', 0)
-        if isinstance(valor, (int, float)):
-            total_valor += (valor * int(t.get('qtd', 1)))
+    if lista_atual == LISTA_PADRAO:
+        for t in tarefas_filtradas:
+            try:
+                preco = float(str(t.get('preco', 0)).replace(',', '.'))
+                qtd_raw = str(t.get('qtd', '1'))
+                qtd_num = int(''.join(filter(str.isdigit, qtd_raw))) if any(c.isdigit() for c in qtd_raw) else 1
+                total_valor += (preco * qtd_num)
+            except: continue
             
     limite_atual = session.get('limite_gastos', 100.0)
-
     return render_template('index.html', lista=tarefas_filtradas, nomes_listas=nomes_listas, atual=lista_atual, total=total_valor, limite=limite_atual)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -54,36 +57,28 @@ def login():
 
 @app.route('/add', methods=['POST'])
 def adicionar():
-    texto = request.form.get('conteudo')
+    titulo = request.form.get('conteudo')
     nome_lista = request.form.get('lista_nome', LISTA_PADRAO).strip()
     id_edicao = request.form.get('id_edicao')
-    quantidade = request.form.get('quantidade', 1)
-    preco_raw = request.form.get('preco', '0').strip()
+    qtd = request.form.get('quantidade', '')
+    
+    # Pega o valor do campo de preço ou da descrição (dependendo da lista)
+    preco_ou_desc = request.form.get('preco', '').strip()
 
-    if texto:
-        # Lógica Híbrida: Tenta converter para número, se falhar, vira descrição (texto)
-        try:
-            if not preco_raw or preco_raw == "0":
-                valor_final = 0.0
-            else:
-                valor_final = float(preco_raw.replace(',', '.'))
-        except ValueError:
-            valor_final = preco_raw # Salva como string (descrição)
-
-        if id_edicao:
+    if titulo:
+        if id_edicao: # EDIÇÃO
             for t in tarefas:
                 if str(t['id']) == id_edicao:
-                    t['texto'] = texto
-                    t['qtd'] = int(quantidade) if quantidade else 1
-                    t['preco'] = valor_final
+                    t['texto'] = titulo
+                    t['qtd'] = qtd
+                    t['preco'] = preco_ou_desc
                     t['lista_nome'] = nome_lista if nome_lista else LISTA_PADRAO
-        else:
+        else: # NOVO ITEM
             novo_id = tarefas[-1]['id'] + 1 if tarefas else 1
             tarefas.append({
-                'id': novo_id, 'texto': texto, 'feito': False, 
+                'id': novo_id, 'texto': titulo, 'feito': False, 
                 'lista_nome': nome_lista if nome_lista else LISTA_PADRAO,
-                'qtd': int(quantidade) if quantidade else 1,
-                'preco': valor_final
+                'qtd': qtd, 'preco': preco_ou_desc
             })
         salvar_tarefas(tarefas)
     return redirect(f'/?nome={nome_lista if nome_lista else LISTA_PADRAO}')
